@@ -1,37 +1,17 @@
-import React, { Component } from 'react';
-import Field from './fields';
+import React from "react";
+import Field from "./Field";
+import isEmail from 'validator/lib/isEmail'
 
-class Form extends Component {
+class Form extends React.Component {
+
   state = {
-    fields : {
+    fields: {
       name: '',
       email: '',
     },
     fieldErrors: {},
-    people : []
-  }
-
-  onInputChange = ({ name, value, error }) => {
-    const fields = this.state.fields
-    const fieldErrors = this.state.fieldErrors
-    
-    fields[name] = value
-    fieldErrors[name] = error
-
-    this.setState({fields, fieldErrors})
-  }
-
-  validate = () => {
-    const person = this.state.fields
-    const fieldErrors = this.state.fieldErrors
-    const errorMessage = Object.keys(fieldErrors).filter((k) => fieldErrors[k])
-
-    if(!person.name) return true
-    if(!person.email) return true
-    if(errorMessage.length) return true
-
-    return false
-  }
+    people: [],
+  };
 
   onFormSubmit = (evt) => {
     const people = this.state.people;
@@ -50,22 +30,68 @@ class Form extends Component {
     });
   };
 
+  onInputChange = ({ name, value, error }) => {
+    const fields = Object.assign({}, this.state.fields);
+    const fieldErrors = Object.assign({}, this.state.fieldErrors);
+
+    fields[name] = value;
+    fieldErrors[name] = error;
+
+    this.setState({ fields, fieldErrors });
+  };
+
+  validate = () => {
+    const person = this.state.fields;
+    const fieldErrors = this.state.fieldErrors;
+    const errMessages = Object.keys(fieldErrors).filter((k) => fieldErrors[k]);
+
+    if (!person.name) return true;
+    if (!person.email) return true;
+    if (errMessages.length) return true;
+
+    return false;
+  };
+
   render() {
     return (
-      <div className='flex flex-col justify-center items-center space-y-3'>
-        <h1 className='text-xl'>Sign up here</h1>
+      <div>
+        <h1>Sign Up Sheet</h1>
+
         <form onSubmit={this.onFormSubmit}>
-          <Field 
+
+          <Field
             placeholder='Name'
-            name="name"
-            value= {this.state.fields.name}
+            name='name'
+            value={this.state.fields.name}
             onChange={this.onInputChange}
-            validate={(val) => (val ? False: "Name is Required")}
+            validate={(val) => (val ? false : 'Name Required')}
           />
+
+          <br />
+
+          <Field
+            placeholder='Email'
+            name='email'
+            value={this.state.fields.email}
+            onChange={this.onInputChange}
+            validate={(val) => (isEmail(val) ? false : 'Invalid Email')}
+          />
+
+          <br />
+
+          <input type='submit' disabled={this.validate()} />
         </form>
+
+        <div>
+          <h3>People</h3>
+          <ul>
+            { this.state.people.map(({ name, email }, i) =>
+              <li key={i}>{name} ({email})</li>
+            ) }
+          </ul>
+        </div>
       </div>
     );
   }
-}
-
-export default Form;
+};
+export default Form
